@@ -56,7 +56,7 @@ def visualize_segments(img, segments, ax=None):
     """
     
     if not ax:
-        fig = plt.figure(figsize=(10,10))
+        fig = plt.figure(figsize=(5,5))
         ax = fig.add_subplot(111)
 
     ax.imshow(mark_boundaries(img, segments)) 

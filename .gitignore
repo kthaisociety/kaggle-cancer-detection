@@ -1,5 +1,3 @@
-.gitignore
-
 __pycache__
 
-data/train/*
+toy_data/*
