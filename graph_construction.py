@@ -82,14 +82,15 @@ def generate_edges(G):
         
         standard_distance_array = []
         threshold_distance = 0
-        
+
         for j, (v, v_data) in enumerate(nodes):
             x_distance = (u_data['center_x'] - v_data['center_x'])**2
             y_distance = (u_data['center_y'] - v_data['center_y'])**2
             standard_distance = np.sqrt(x_distance + y_distance)
             standard_distance_array.append(standard_distance)
         threshold_distance = np.sort(standard_distance_array)[int(np.size(standard_distance_array)*0.05)] # select closest 5% of neighbours
-        
+        max_distance = np.max(standard_distance_array)
+
         for j, (v, v_data) in enumerate(nodes[i+1:]): # all elements after the i-th
             # local feature values for the two nodes
             u_features = np.array([u_data[f] for f in features]) 
@@ -100,9 +101,9 @@ def generate_edges(G):
             x_distance = (u_data['center_x'] - v_data['center_x'])**2
             y_distance = (u_data['center_y'] - v_data['center_y'])**2
             standard_distance = np.sqrt(x_distance + y_distance)
-            standard_distance = standard_distance if standard_distance < threshold_distance else 0
+            standard_distance = standard_distance if standard_distance < threshold_distance else max_distance
             # weigth depends on distance and fearute dop product
-            edge_weight = feature_similarity * standard_distance
+            edge_weight = feature_similarity * (max_distance - standard_distance)
             G.add_edge(u, v, weight=edge_weight)
             
     return G
