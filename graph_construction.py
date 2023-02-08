@@ -73,18 +73,35 @@ def generate_edges(G):
     Returns:
     networkx.Graph: The graph with edges added.
     """
+    threshold_distance = 10
     nodes = list(G.nodes(data=True))
-    features = [list(node[1].keys()) for node in nodes]
-    features = list(set(features[0]).intersection(*features)) # get common features
-    features = [f for f in features if f not in ['center_x', 'center_y']] # exclude center_x and center_y
+    features = [list(node[1].keys()) for node in nodes] # each features entry is a list of the paraemter names for each node
+    features = list(set(features[0]).intersection(*features)) # get common features accross all nodes
+    features = [f for f in features if f not in ['center_x', 'center_y']] # exclude center_x and center_y and leave nly all oher features
     for i, (u, u_data) in enumerate(nodes[:-1]):
-        for j, (v, v_data) in enumerate(nodes[i+1:]):
-            u_features = np.array([u_data[f] for f in features])
-            v_features = np.array([v_data[f] for f in features])
-            feature_similarity = np.dot(u_features, v_features) / (np.linalg.norm(u_features) * np.linalg.norm(v_features))
+        
+        standard_distance_array = []
+        threshold_distance = 0
+        
+        for j, (v, v_data) in enumerate(nodes):
             x_distance = (u_data['center_x'] - v_data['center_x'])**2
             y_distance = (u_data['center_y'] - v_data['center_y'])**2
             standard_distance = np.sqrt(x_distance + y_distance)
+            standard_distance_array.append(standard_distance)
+        threshold_distance = np.sort(standard_distance_array)[int(np.size(standard_distance_array)*0.05)] # select closest 5% of neighbours
+        
+        for j, (v, v_data) in enumerate(nodes[i+1:]): # all elements after the i-th
+            # local feature values for the two nodes
+            u_features = np.array([u_data[f] for f in features]) 
+            v_features = np.array([v_data[f] for f in features])
+            # normalized dot product of the features
+            feature_similarity = np.dot(u_features, v_features) / (np.linalg.norm(u_features) * np.linalg.norm(v_features))
+            # sqrt(sx^2 + y^2) distance
+            x_distance = (u_data['center_x'] - v_data['center_x'])**2
+            y_distance = (u_data['center_y'] - v_data['center_y'])**2
+            standard_distance = np.sqrt(x_distance + y_distance)
+            standard_distance = standard_distance if standard_distance < threshold_distance else 0
+            # weigth depends on distance and fearute dop product
             edge_weight = feature_similarity * standard_distance
             G.add_edge(u, v, weight=edge_weight)
             

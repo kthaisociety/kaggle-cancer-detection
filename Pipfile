@@ -10,6 +10,8 @@ opencv-python = "*"
 numpy = "*"
 pandas = "*"
 python-gdcm = "*"
+scikit-learn = "*"
+scikit-image = "*"
 
 [dev-packages]
 ipykernel = "*"
