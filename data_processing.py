@@ -3,8 +3,6 @@ import networkx as nx
 import pickle
 import torch
 from torch_geometric.data import Data
-from torch_geometric.loader import DataLoader
-from sklearn.model_selection import train_test_split
 
 def load_graphs_from_directory(directory):
     """

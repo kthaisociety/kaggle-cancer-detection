@@ -4,6 +4,8 @@ from torch_geometric.nn import GCNConv
 from torch_geometric.nn import global_mean_pool
 
 from data_processing import *
+from torch_geometric.loader import DataLoader
+from sklearn.model_selection import train_test_split
 
 class GCN(torch.nn.Module):
     def __init__(self, hidden_channels):
