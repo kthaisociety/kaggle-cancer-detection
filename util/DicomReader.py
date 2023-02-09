@@ -57,11 +57,12 @@ class DicomReader:
 
         if dicom.PhotometricInterpretation == "MONOCHROME1":
             img = 1 - img
-            
-        plt.figure(figsize=(5, 5))
-        plt.imshow(img, cmap="gray")
-        plt.title(f"{patient_id} {image_id}")
-        plt.show()
+        
+        if plot_img:
+            plt.figure(figsize=(5, 5))
+            plt.imshow(img, cmap="gray")
+            plt.title(f"{patient_id} {image_id}")
+            plt.show()
 
         return patient_id, image_id, img, cancer
 
