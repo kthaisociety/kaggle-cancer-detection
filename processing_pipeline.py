@@ -6,7 +6,7 @@ import os
 from util.segmentation import segment_img
 from util.featurize import extract_normalized_features
 from graph_construction import generate_graph, save_graph
-import util.DicomReader as dr
+from util.DicomReader import DicomReader
 
 GRAPH_DATA_DIRNAME = 'graphs'
 
@@ -16,22 +16,26 @@ if __name__ == "__main__":
     if not os.path.isdir(GRAPH_DATA_DIRNAME):
         os.mkdir(GRAPH_DATA_DIRNAME)
 
-    # image_reader = dr.DicomReader("data/train.csv")
-    # images = image_reader.extract_img_and_meta("data/train/24947/1231101161.dcm")
-    # RUNTIME ERROR
-    images = [plt.imread("64956_1305773827.png")] # placeholder, numpy arrays for each image
+    image_reader = DicomReader("toy_data/train.csv")
+    patient_id, image_id, img, cancer = image_reader.extract_img_and_meta("toy_data/train_images/24947/1231101161.dcm", plot_img=False)
+    images = [img] # placeholder, numpy arrays for each image
 
     for image in images:
         
         # segment the image
+        print(f"{patient_id} {image_id}\n ----------------------------------------------------")
+        print(f"segmenting")
         segments = segment_img(image)
         
         # get features from each segment
+        print(f"featurizing")
         features = extract_normalized_features(image, segments)
         
         # construct the graph
+        print("generating graph")
         graph = generate_graph(features)
         
         # save the graph
-        save_graph(graph, f"{GRAPH_DATA_DIRNAME}/a_really_cool_graph_name.pkl")
+        file_name = "cancer" if cancer else "no_cancer"
+        save_graph(graph, f"{GRAPH_DATA_DIRNAME}/{file_name}.pkl")
     
