@@ -24,13 +24,15 @@ class DicomReader:
         """
         self.table =  pd.read_csv(table_path, dtype={'patient_id':str, 'image_id':str})
 
-    def extract_img_and_meta(self, file_path, plot_img=True):
+    def extract_img_and_meta(self, file_path, scale_ratio=1, plot_img=True):
         """
-        extracts the pixel data and cancer data
+        extracts the pixel data and cancer data and resizes image
         Parameters
         ----------
         file_path : str
             path to .dcm file
+        scale_ratio : float
+            scaling ratio for resizing, default 1 -> not scaling
         plot_img : bool
             whether to plot img or not
         
@@ -52,6 +54,11 @@ class DicomReader:
 
         dicom = pydicom.dcmread(file_path)
         img = dicom.pixel_array
+
+        width = int(img.shape[1] * scale_ratio)
+        height = int(img.shape[0] * scale_ratio)
+        dim = (width, height)
+        img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
         img = (img - img.min()) / (img.max() - img.min())
 
@@ -87,6 +94,7 @@ class DicomReader:
 
 
 if __name__=="__main__":
-    dr = DicomReader("data/train.csv")
-    print(dr.extract_img_and_meta("data/train/24947/1231101161.dcm"))
+    dr = DicomReader("toy_data/train.csv")
+    patient_id, image_id, img, cancer = dr.extract_img_and_meta("toy_data/train_images/30699/961718628.dcm", scale_ratio=.1, plot_img=True)
+    print(np.max(img))
     #dr.process_data("data/train/10006/462822612.dcm", "data/train.csv")
