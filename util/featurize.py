@@ -1,9 +1,9 @@
 import numpy as np
-from skimage.filters import threshold_otsu
-from skimage.feature import local_binary_pattern
-from skimage.measure import regionprops, moments, moments_hu
-from skimage.segmentation import felzenszwalb
 from skimage import img_as_ubyte
+from skimage.feature import local_binary_pattern
+from skimage.filters import threshold_otsu
+from skimage.measure import regionprops, moments, moments_hu
+
 
 def extract_normalized_features(image, segments):
     """
@@ -57,7 +57,7 @@ def extract_features(image, segments, include_background=False):
     segments_ids = np.unique(segments)
     centers = np.array([np.mean(np.nonzero(segments==i),axis=1) for i in segments_ids])
 
-    props = regionprops(segments, intensity_image=image)
+    props = regionprops(segments, intensity_image=image) # this thing is removing the last segment for some reason
     superpixel_features = []
     for i, prop in enumerate(props):
         labels = prop.label
@@ -107,13 +107,12 @@ def extract_features(image, segments, include_background=False):
             'center_y': centers[i][1]
             
         })
-    
-    if not include_background:
-    
-        # skip the node with biggest area (background):
-        areas = [superpixel_features[i]['area'] for i in range(len(superpixel_features))]
-        background_feature_set_index = areas.index(max(areas))
-        del superpixel_features[background_feature_set_index]
+    # TODO one node is lost here, the code removes the biggest node, which is not the entire background, when it is divided in smaller pices
+    # if not include_background:
+    #     # skip the node with the biggest area (background):
+    #     areas = [superpixel_features[i]['area'] for i in range(len(superpixel_features))]
+    #     background_feature_set_index = areas.index(max(areas))
+    #     del superpixel_features[background_feature_set_index]
 
     return superpixel_features
 
